@@ -4,13 +4,18 @@
     python main.py requirements.txt
     python main.py requirements.txt --format json
     python main.py requirements.txt --fail-on high
+    python main.py ./моят_проект          (папка със сорс код)
+    python main.py app.py                 (един .py файл)
 """
 
 import argparse
 import json
 import sys
 
+import os
+
 from auditor.parser import parse_file
+from auditor.source_scan import scan_source
 from auditor.osv_check import scan
 from auditor.typosquat import find_typosquats
 from auditor.staleness import find_stale_packages
@@ -39,7 +44,10 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Software Supply Chain Security Scanner - одитира requirements.txt за известни рискове."
     )
-    parser.add_argument("requirements_file", help="Път до requirements.txt файла за проверка")
+    parser.add_argument(
+        "requirements_file",
+        help="Път до requirements.txt, до папка със сорс код или до един .py файл",
+    )
     parser.add_argument(
         "--format",
         choices=["text", "json"],
@@ -58,13 +66,19 @@ def parse_args():
 
 def run_all_checks(requirements_file):
     """Минава през всички проверки и връща суровите резултати (без показване)."""
-    reqs = parse_file(requirements_file)
+    if os.path.isdir(requirements_file) or requirements_file.endswith(".py"):
+        # Режим "сорс код": четем import-ите директно от .py файловете.
+        reqs, has_requirements_file = scan_source(requirements_file)
+    else:
+        reqs = parse_file(requirements_file)
+        has_requirements_file = True
     return {
         "requirements": reqs,
         "osv_findings": scan(reqs),
         "typo_findings": find_typosquats(reqs),
         "stale_findings": find_stale_packages(reqs),
-        "hash_findings": find_missing_hashes(reqs),
+        # Без requirements.txt няма къде да има хешове - не вдигаме фалшива тревога.
+        "hash_findings": find_missing_hashes(reqs) if has_requirements_file else [],
     }
 
 

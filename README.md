@@ -62,6 +62,10 @@ python main.py requirements.txt --format json
 
 # Exit with code 1 if a vulnerability at or above a severity is found
 python main.py requirements.txt --fail-on high
+
+# No requirements.txt? Scan a source-code folder (or a single .py file):
+# the tool reads the imports and checks the third-party libraries it finds
+python main.py ./my_project
 ```
 
 `--fail-on` accepts `low`, `medium`, `high`, or `critical` and is designed to
