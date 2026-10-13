@@ -20,6 +20,7 @@ from auditor.osv_check import scan
 from auditor.typosquat import find_typosquats
 from auditor.staleness import find_stale_packages
 from auditor.hash_check import find_missing_hashes
+from auditor.confusion import find_unregistered_packages
 
 # Колко "тежка" е всяка дума за тежест - по-голямо число = по-опасно.
 SEVERITY_RANK = {
@@ -77,6 +78,7 @@ def run_all_checks(requirements_file):
         "osv_findings": scan(reqs),
         "typo_findings": find_typosquats(reqs),
         "stale_findings": find_stale_packages(reqs),
+        "confusion_findings": find_unregistered_packages(reqs),
         # Без requirements.txt няма къде да има хешове - не вдигаме фалшива тревога.
         "hash_findings": find_missing_hashes(reqs) if has_requirements_file else [],
     }
@@ -90,9 +92,11 @@ def print_text_report(results):
     report.print_typosquat_findings(results["typo_findings"])
     report.print_stale_findings(results["stale_findings"])
     report.print_hash_findings(results["hash_findings"])
+    report.print_confusion_findings(results["confusion_findings"])
     report.print_summary(
         results["osv_findings"], results["typo_findings"],
         results["stale_findings"], results["hash_findings"],
+        results["confusion_findings"],
     )
 
 
@@ -112,6 +116,7 @@ def print_json_report(results):
         "typo_findings": results["typo_findings"],
         "stale_findings": results["stale_findings"],
         "hash_findings": results["hash_findings"],
+        "confusion_findings": results["confusion_findings"],
     }
     print(json.dumps(output, indent=2, ensure_ascii=False))
 

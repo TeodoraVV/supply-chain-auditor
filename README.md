@@ -19,6 +19,7 @@ a breach.
 | 3 | **Typosquatting** | Compares each package name against a list of popular PyPI packages using string-similarity matching | Double-check the name is spelled correctly on PyPI |
 | 4 | **Unmaintained packages** | Checks the PyPI JSON API for the date of the last release | Consider migrating to an actively maintained alternative |
 | 5 | **Missing integrity hashes** | Flags requirements without a `--hash=sha256:...` entry | Generate hashes with `pip-compile --generate-hashes` |
+| 6 | **Dependency confusion** | Flags names that do not exist on PyPI (anyone could register them with malicious code) | Use the correct public name, or install private packages from a trusted private index |
 
 The scanner **only reads metadata** — it never installs, executes, or
 modifies any of the analyzed packages.
@@ -83,6 +84,7 @@ supply-chain-auditor/
 │   ├── typosquat.py          # name-similarity check
 │   ├── staleness.py          # PyPI "last release" check
 │   ├── hash_check.py         # missing --hash= check
+│   ├── confusion.py          # names unknown to PyPI (dependency confusion)
 │   └── report.py             # colored terminal output (rich)
 ├── tests/                    # pytest test suite (21 tests)
 └── demo_requirements.txt     # intentionally vulnerable sample file

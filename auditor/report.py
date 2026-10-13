@@ -103,9 +103,23 @@ def print_hash_findings(findings):
         console.print(f"[dim]ред {h['line_number']}: '{h['name']}' няма зададен --hash=[/dim]")
 
 
-def print_summary(osv_findings, typo_findings, stale_findings, hash_findings):
+def print_confusion_findings(findings):
+    console.print("\n[bold]--- Проверка за dependency confusion (имена, непознати на PyPI) ---[/bold]")
+    if not findings:
+        console.print("[green]Всички имена съществуват в PyPI (или PyPI не отговори).[/green]")
+        return
+
+    for c in findings:
+        console.print(
+            f"[red]ред {c['line_number']}: '{c['name']}' не съществува в PyPI - "
+            f"някой може да регистрира това име със зловреден код![/red]"
+        )
+
+
+def print_summary(osv_findings, typo_findings, stale_findings, hash_findings, confusion_findings=()):
     console.print("\n[bold underline]--- Обобщение ---[/bold underline]")
     console.print(f"Известни уязвимости: [bold]{len(osv_findings)}[/bold]")
     console.print(f"Подозрителни имена: [bold]{len(typo_findings)}[/bold]")
     console.print(f"Изоставени библиотеки: [bold]{len(stale_findings)}[/bold]")
     console.print(f"Липсващи хешове: [bold]{len(hash_findings)}[/bold]")
+    console.print(f"Непознати на PyPI имена: [bold]{len(confusion_findings)}[/bold]")
